@@ -11,7 +11,12 @@ ENV SFTPGO_DATA_PROVIDER__DRIVER=sqlite \
     SFTPGO_SFTPD__BINDINGS__0__PORT=2022 \
     SFTPGO_SFTPD__HOST_KEYS=/var/lib/sftpgo/hostkeys/id_rsa,/var/lib/sftpgo/hostkeys/id_ecdsa,/var/lib/sftpgo/hostkeys/id_ed25519 \
     SFTPGO_HTTPD__BINDINGS__0__PROXY_ALLOWED=10.0.0.0/8,100.64.0.0/10,172.16.0.0/12,192.168.0.0/16,fc00::/7 \
-    SFTPGO_HTTPD__BINDINGS__0__CLIENT_IP_PROXY_HEADER=X-Forwarded-For
+    SFTPGO_HTTPD__BINDINGS__0__CLIENT_IP_PROXY_HEADER=X-Real-IP
+
+# Railway's edge sets X-Real-IP to the real client address (it overwrites any
+# value the client sends), while the last X-Forwarded-For entry is the edge
+# itself. SFTPGo binds login tokens to the client IP, so it must read X-Real-IP,
+# or every request after the login fails with 401.
 
 # The start script runs as root only to fix the volume's ownership,
 # then drops to the image's unprivileged sftpgo user (uid 1000).
